@@ -1,0 +1,173 @@
+﻿@page "/"
+@using AuctionPoc.Models
+@using AuctionPoc.Services
+@inject AuctionService AuctionService
+@rendermode InteractiveServer
+
+<PageTitle>Commercial Properties for Auction</PageTitle>
+
+<div class="auction-container">
+    <div class="header-section">
+        <h1 class="page-title">Commercial Properties for Auction</h1>
+        <button class="export-btn" @onclick="ExportResults">Export Results</button>
+    </div>
+
+    <div class="filter-section">
+        <div class="filter-row">
+            <select class="filter-select" @bind="selectedPropertyType" @bind:after="ApplyFilters">
+                <option value="">All Types</option>
+                @foreach (var type in propertyTypes)
+                {
+                    <option value="@type">@type</option>
+                }
+            </select>
+
+            <select class="filter-select" @bind="selectedPriceRange" @bind:after="ApplyFilters">
+                <option value="">Any Price</option>
+                <option value="0-50000">$0 - $50,000</option>
+                <option value="50000-100000">$50,000 - $100,000</option>
+                <option value="100000-250000">$100,000 - $250,000</option>
+                <option value="250000-500000">$250,000 - $500,000</option>
+                <option value="500000-1000000">$500,000 - $1,000,000</option>
+                <option value="1000000+">$1,000,000+</option>
+            </select>
+
+            <button class="filter-btn" @onclick="ClearFilters">Clear Filters</button>
+            <button class="save-search-btn" @onclick="SaveSearch">Save Search</button>
+        </div>
+    </div>
+
+    <div class="results-info">
+        <span>@filteredProperties.Count results</span>
+        @if (searchSaved)
+        {
+            <span class="saved-indicator">✓ Search saved</span>
+        }
+    </div>
+
+    <div class="property-grid">
+        @foreach (var property in filteredProperties)
+        {
+            <div class="property-card">
+                <div class="card-image-container">
+                    <img src="@property.ImageUrl" alt="@property.Title" class="card-image" />
+                    <div class="card-badges">
+                        @if (property.HasVideo)
+                        {
+                            <span class="badge badge-video">📹 Video</span>
+                        }
+                        @if (property.IsOpportunityZone)
+                        {
+                            <span class="badge badge-opportunity">Opportunity Zone</span>
+                        }
+                        <span class="badge badge-auction">Auction</span>
+                    </div>
+                    @if (property.IsLive)
+                    {
+                        <div class="live-badge">LIVE • Bidding Closes:</div>
+                    }
+                </div>
+
+                <div class="card-content">
+                    <div class="card-price">
+                        @if (property.StartingBid == 1)
+                        {
+                            <span class="price-starting">$1 Starting Bid</span>
+                        }
+                        else
+                        {
+                            <span class="price-amount">$@property.StartingBid.ToString("N0")</span>
+                            <span class="price-label">Starting Bid</span>
+                        }
+                    </div>
+
+                    <h3 class="card-title">@property.Title</h3>
+                    
+                    <div class="card-details">
+                        @if (property.SquareFeet > 0)
+                        {
+                            <p>@property.SquareFeet.ToString("N0") SF</p>
+                        }
+                        @if (property.Acres.HasValue)
+                        {
+                            <p>@property.Acres.Value.ToString("N2") Acre@(property.Acres.Value != 1 ? "s" : "")</p>
+                        }
+                        @if (!string.IsNullOrEmpty(property.Zoning))
+                        {
+                            <p>@property.Zoning</p>
+                        }
+                    </div>
+
+                    <div class="card-location">
+                        <p>@property.Address</p>
+                        <p>@property.City, @property.State @property.ZipCode</p>
+                    </div>
+
+                    <div class="card-actions">
+                        <button class="btn-bid">Bid Now</button>
+                        <button class="btn-favorite">⭐</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private List<AuctionProperty> allProperties = new();
+    private List<AuctionProperty> filteredProperties = new();
+    private List<string> propertyTypes = new();
+    private string selectedPropertyType = "";
+    private string selectedPriceRange = "";
+    private bool searchSaved = false;
+
+    protected override void OnInitialized()
+    {
+        allProperties = AuctionService.GetAllProperties();
+        filteredProperties = allProperties;
+        propertyTypes = AuctionService.GetPropertyTypes();
+    }
+
+    private void ApplyFilters()
+    {
+        decimal? minPrice = null;
+        decimal? maxPrice = null;
+
+        if (!string.IsNullOrEmpty(selectedPriceRange))
+        {
+            var parts = selectedPriceRange.Split('-');
+            if (parts.Length == 2)
+            {
+                if (decimal.TryParse(parts[0], out var min))
+                    minPrice = min;
+                if (parts[1] != "+" && decimal.TryParse(parts[1], out var max))
+                    maxPrice = max;
+            }
+            else if (selectedPriceRange.EndsWith("+"))
+            {
+                if (decimal.TryParse(parts[0], out var min))
+                    minPrice = min;
+            }
+        }
+
+        filteredProperties = AuctionService.FilterProperties(selectedPropertyType, minPrice, maxPrice);
+        searchSaved = false;
+    }
+
+    private void ClearFilters()
+    {
+        selectedPropertyType = "";
+        selectedPriceRange = "";
+        filteredProperties = allProperties;
+        searchSaved = false;
+    }
+
+    private void SaveSearch()
+    {
+        searchSaved = true;
+    }
+
+    private void ExportResults()
+    {
+    }
+}
