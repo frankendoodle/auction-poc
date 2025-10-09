@@ -1,20 +1,56 @@
 using AuctionPoc.Components;
+using AuctionPoc.Data;
+using Azure.Identity;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+var keyVaultUri = builder.Configuration["KeyVault:VaultUri"];
+if (!string.IsNullOrEmpty(keyVaultUri))
+{
+    builder.Configuration.AddAzureKeyVault(
+        new Uri(keyVaultUri),
+        new DefaultAzureCredential());
+}
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddSingleton<AuctionPoc.Services.AuctionService>();
+var connectionString = builder.Configuration.GetConnectionString("AuctionDatabase");
+if (!string.IsNullOrEmpty(connectionString))
+{
+    var password = builder.Configuration["AuctionPassword"];
+    if (!string.IsNullOrEmpty(password))
+    {
+        connectionString = connectionString.Replace("{KEYVAULT-PASSWORD}", password);
+    }
+}
+
+builder.Services.AddDbContext<AuctionDbContext>(options =>
+    options.UseSqlServer(connectionString));
+
+builder.Services.AddScoped<AuctionPoc.Services.AuctionService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AuctionDbContext>();
+        await DbInitializer.SeedAsync(context);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while seeding the database.");
+    }
+}
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
