@@ -3,8 +3,9 @@
 .mm-header__brand { font-weight: 600; color: #111827; text-decoration: none; white-space: nowrap; }
 .mm-header__brand:hover { color: #0b4d86; }
 .mm-header__search { flex: 1; display: flex; align-items: center; gap: 8px; }
-.mm-search-input { width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; }
-.mm-search-btn { width: 36px; height: 36px; border: 1px solid #d1d5db; border-radius: 4px; background: #fff; cursor: pointer; }
+.mm-search-input { width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; height: 36px; }
+.mm-search-btn { width: 36px; height: 36px; border: 0; border-radius: 4px; background: transparent; color: #6b7280; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.mm-search-btn:hover { color: #111827; background: #f3f4f6; }
 .mm-header__nav { }
 .mm-nav { margin: 0; padding: 0; list-style: none; display: flex; gap: 16px; align-items: center; }
 .mm-nav__link, .mm-nav__toggle { cursor: pointer; color: #1f2937; text-decoration: none; background: transparent; border: 0; padding: 8px 4px; font: inherit; }
