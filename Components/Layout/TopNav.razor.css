@@ -1,9 +1,12 @@
 .mm-header { background: #fff; border-bottom: 1px solid #e5e7eb; }
-.mm-header__container { max-width: 1200px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 24px; }
+.mm-header__container { max-width: 1200px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 16px; }
 .mm-header__brand { font-weight: 600; color: #111827; text-decoration: none; white-space: nowrap; }
 .mm-header__brand:hover { color: #0b4d86; }
-.mm-header__nav { flex: 1; }
-.mm-nav { margin: 0; padding: 0; list-style: none; display: flex; gap: 20px; align-items: center; }
+.mm-header__search { flex: 1; display: flex; align-items: center; gap: 8px; }
+.mm-search-input { width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; }
+.mm-search-btn { width: 36px; height: 36px; border: 1px solid #d1d5db; border-radius: 4px; background: #fff; cursor: pointer; }
+.mm-header__nav { }
+.mm-nav { margin: 0; padding: 0; list-style: none; display: flex; gap: 16px; align-items: center; }
 .mm-nav__link, .mm-nav__toggle { cursor: pointer; color: #1f2937; text-decoration: none; background: transparent; border: 0; padding: 8px 4px; font: inherit; }
 .mm-nav__link:hover, .mm-nav__toggle:hover { color: #006bb7; }
 .mm-nav__item { position: relative; }
@@ -13,6 +16,6 @@
 .mm-dropdown__link { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 4px; color: #1f2937; text-decoration: none; cursor: pointer; }
 .mm-dropdown__link:hover { background: #f3f4f6; color: #111827; }
 @media (max-width: 768px) {
-  .mm-nav { gap: 14px; }
+  .mm-nav { gap: 12px; }
   .mm-dropdown { left: -8px; min-width: 360px; }
 }

@@ -1,11 +1,12 @@
 <header class="mm-header">
     <div class="mm-header__container">
         <a class="mm-header__brand" href="/">Marcus &amp; Millichap</a>
+        <form class="mm-header__search" @onsubmit="OnSubmit" @onsubmit:preventDefault="true">
+            <input @bind="_searchTerm" placeholder="Enter a location or keyword" class="mm-search-input" />
+            <button type="submit" class="mm-search-btn" aria-label="Search"></button>
+        </form>
         <nav class="mm-header__nav" aria-label="Primary">
             <ul class="mm-nav">
-                <li class="mm-nav__item">
-                    <a href="/search" class="mm-nav__link">Search</a>
-                </li>
                 <li class="mm-nav__item mm-nav__item--has-dropdown" aria-haspopup="true">
                     <button class="mm-nav__link mm-nav__toggle" aria-expanded="false" type="button">Auctions</button>
                     <div class="mm-dropdown" role="menu" aria-label="Auctions">
@@ -32,3 +33,16 @@
         </nav>
     </div>
 </header>
+
+@code {
+    [Microsoft.AspNetCore.Components.Inject] NavigationManager Nav { get; set; } = default!;
+    private string _searchTerm = string.Empty;
+
+    private void OnSubmit()
+    {
+        var target = string.IsNullOrWhiteSpace(_searchTerm)
+            ? "/"
+            : $"/?q={Uri.EscapeDataString(_searchTerm)}";
+        Nav.NavigateTo(target);
+    }
+}
