@@ -18,7 +18,7 @@ public class AuctionService
         return await _context.AuctionProperties.ToListAsync();
     }
 
-    public async Task<List<AuctionProperty>> FilterPropertiesAsync(string? propertyType, decimal? minPrice, decimal? maxPrice)
+    public async Task<List<AuctionProperty>> FilterPropertiesAsync(string? propertyType, decimal? minPrice, decimal? maxPrice, string? searchTerm = null)
     {
         var query = _context.AuctionProperties.AsQueryable();
 
@@ -35,6 +35,20 @@ public class AuctionService
         if (maxPrice.HasValue)
         {
             query = query.Where(p => p.StartingBid <= maxPrice.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var term = searchTerm.Trim().ToLower();
+            query = query.Where(p =>
+                (p.Title != null && p.Title.ToLower().Contains(term)) ||
+                (p.Address != null && p.Address.ToLower().Contains(term)) ||
+                (p.City != null && p.City.ToLower().Contains(term)) ||
+                (p.State != null && p.State.ToLower().Contains(term)) ||
+                (p.ZipCode != null && p.ZipCode.ToLower().Contains(term)) ||
+                (p.Description != null && p.Description.ToLower().Contains(term)) ||
+                (p.PropertyType != null && p.PropertyType.ToLower().Contains(term))
+            );
         }
 
         return await query.ToListAsync();
