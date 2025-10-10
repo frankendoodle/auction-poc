@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
 using AuctionPoc.Components;
 using AuctionPoc.Services.Auth;
 using AuctionPoc.Data;
@@ -85,7 +86,7 @@ app.UseAuthorization();
 
 app.UseAntiforgery();
 
-app.MapPost("/auth/register", async (IUserStore store, string email, string password, string displayName, string role) =>
+app.MapPost("/auth/register", async (IUserStore store, [Microsoft.AspNetCore.Mvc.FromForm] string email, [Microsoft.AspNetCore.Mvc.FromForm] string password, [Microsoft.AspNetCore.Mvc.FromForm] string displayName, [Microsoft.AspNetCore.Mvc.FromForm] string role) =>
 {
     var existing = await store.GetByEmailAsync(email);
     if (existing is not null) return Results.BadRequest("Email already registered.");
@@ -103,7 +104,7 @@ app.MapPost("/auth/register", async (IUserStore store, string email, string pass
     return Results.Ok();
 });
 
-app.MapPost("/auth/login", async (IUserStore store, HttpContext ctx, string email, string password, string? returnUrl) =>
+app.MapPost("/auth/login", async (IUserStore store, HttpContext ctx, [Microsoft.AspNetCore.Mvc.FromForm] string email, [Microsoft.AspNetCore.Mvc.FromForm] string password, [Microsoft.AspNetCore.Mvc.FromForm] string? returnUrl) =>
 {
     if (!await store.ValidateCredentialsAsync(email, password))
         return Results.BadRequest("Invalid credentials.");
