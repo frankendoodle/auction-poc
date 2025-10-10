@@ -2,6 +2,7 @@
 @using AuctionPoc.Models
 @using AuctionPoc.Services
 @inject AuctionService AuctionService
+@inject IJSRuntime JS
 @rendermode InteractiveServer
 
 <PageTitle>Commercial Properties for Auction</PageTitle>
@@ -9,7 +10,13 @@
 <div class="auction-container">
     <div class="header-section">
         <h1 class="page-title">Commercial Properties for Auction</h1>
-        <button class="export-btn" @onclick="ExportResults">Export Results</button>
+        <div class="header-actions">
+            <label class="form-check form-switch m-0 d-flex align-items-center gap-2">
+                <input class="form-check-input darker-border-checkbox" type="checkbox" @onchange="ToggleMap" checked="@showMap" />
+                <span>Show Map</span>
+            </label>
+            <button class="export-btn" @onclick="ExportResults">Export Results</button>
+        </div>
     </div>
 
     <div class="filter-section">
@@ -36,6 +43,13 @@
             <button class="save-search-btn" @onclick="SaveSearch">Save Search</button>
         </div>
     </div>
+
+    @if (showMap)
+    {
+        <div class="map-placeholder">
+            <div class="map-box">Map Placeholder</div>
+        </div>
+    }
 
     <div class="results-info">
         <span>@filteredProperties.Count results</span>
@@ -114,21 +128,28 @@
 </div>
 
 @code {
+    [SupplyParameterFromQuery(Name = "q")]
+    public string? Query { get; set; }
     private List<AuctionProperty> allProperties = new();
     private List<AuctionProperty> filteredProperties = new();
     private List<string> propertyTypes = new();
     private string selectedPropertyType = "";
     private string selectedPriceRange = "";
     private bool searchSaved = false;
+    private bool showMap = false;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        allProperties = AuctionService.GetAllProperties();
+        allProperties = await AuctionService.GetAllPropertiesAsync();
         filteredProperties = allProperties;
-        propertyTypes = AuctionService.GetPropertyTypes();
+        propertyTypes = await AuctionService.GetPropertyTypesAsync();
+        if (!string.IsNullOrWhiteSpace(Query))
+        {
+            await ApplyFilters();
+        }
     }
 
-    private void ApplyFilters()
+    private async Task ApplyFilters()
     {
         decimal? minPrice = null;
         decimal? maxPrice = null;
@@ -150,15 +171,16 @@
             }
         }
 
-        filteredProperties = AuctionService.FilterProperties(selectedPropertyType, minPrice, maxPrice);
+        filteredProperties = await AuctionService.FilterPropertiesAsync(selectedPropertyType, minPrice, maxPrice, Query);
         searchSaved = false;
     }
 
-    private void ClearFilters()
+    private async Task ClearFilters()
     {
         selectedPropertyType = "";
         selectedPriceRange = "";
-        filteredProperties = allProperties;
+        Query = null;
+        filteredProperties = await AuctionService.GetAllPropertiesAsync();
         searchSaved = false;
     }
 
@@ -167,7 +189,52 @@
         searchSaved = true;
     }
 
-    private void ExportResults()
+    private void ToggleMap(ChangeEventArgs e)
     {
+        showMap = (bool)e.Value;
+    }
+
+    private static string CsvEscape(string? s)
+    {
+        if (string.IsNullOrEmpty(s)) return "";
+        var needsQuotes = s.Contains(',') || s.Contains('\"') || s.Contains('\n') || s.Contains('\r');
+        var val = s.Replace("\"", "\"\"");
+        return needsQuotes ? $"\"{val}\"" : val;
+    }
+
+    private async Task ExportResults()
+    {
+        var headers = new[] {
+            "Id","Title","Address","City","State","ZipCode","StartingBid","PropertyType",
+            "SquareFeet","Acres","Zoning","IsLive","HasVideo","IsOpportunityZone","BiddingCloses"
+        };
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine(string.Join(",", headers));
+
+        foreach (var p in filteredProperties)
+        {
+            var row = new string[] {
+                p.Id.ToString(),
+                CsvEscape(p.Title),
+                CsvEscape(p.Address),
+                CsvEscape(p.City),
+                CsvEscape(p.State),
+                CsvEscape(p.ZipCode),
+                p.StartingBid.ToString("0.##"),
+                CsvEscape(p.PropertyType),
+                p.SquareFeet.ToString("0.##"),
+                p.Acres?.ToString("0.##") ?? "",
+                CsvEscape(p.Zoning),
+                p.IsLive ? "true" : "false",
+                p.HasVideo ? "true" : "false",
+                p.IsOpportunityZone ? "true" : "false",
+                p.BiddingCloses.ToString("o")
+            };
+            sb.AppendLine(string.Join(",", row));
+        }
+
+        var bytes = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
+        var base64 = Convert.ToBase64String(bytes);
+        await JS.InvokeVoidAsync("downloadFileFromBytes", "auction-results.csv", "text/csv;charset=utf-8", base64);
     }
 }

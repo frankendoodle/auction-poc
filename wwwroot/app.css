@@ -310,3 +310,31 @@ html, body {
 .btn-favorite:hover {
     background-color: #f9fafb;
 }
+.user-menu .user-menu-link {
+    color: #1a1a1a;
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+}
+.user-menu .user-menu-link:hover {
+    text-decoration: underline;
+}
+.site-brand {
+    font-weight: 700;
+    color: #1a1a1a;
+    text-decoration: none;
+}
+.site-brand:hover {
+    text-decoration: none;
+}
+.header-actions { display: flex; align-items: center; gap: 12px; }
+.map-placeholder { margin-bottom: 20px; }
+.map-box {
+    height: 260px;
+    background: linear-gradient(135deg, #e5e7eb, #f3f4f6);
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: #4b5563;
+    font-weight: 600;
+}
