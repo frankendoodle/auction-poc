@@ -84,6 +84,9 @@ app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseAntiforgery();
+
+
 app.MapPost("/auth/register", async (IUserStore store, [Microsoft.AspNetCore.Mvc.FromForm] string email, [Microsoft.AspNetCore.Mvc.FromForm] string password, [Microsoft.AspNetCore.Mvc.FromForm] string displayName, [Microsoft.AspNetCore.Mvc.FromForm] string role) =>
 {
     var existing = await store.GetByEmailAsync(email);
