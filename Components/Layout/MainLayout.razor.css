@@ -34,6 +34,8 @@ main {
     .top-row ::deep a:first-child {
         overflow: hidden;
         text-overflow: ellipsis;
+}
+
 .topbar-left {
     display: flex;
     align-items: center;
