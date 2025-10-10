@@ -1,0 +1,50 @@
+@page "/login"
+@rendermode InteractiveServer
+@inject NavigationManager Nav
+
+<h3>Log In</h3>
+
+<EditForm Model="model" OnValidSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="mb-3">
+        <label>Email</label>
+        <InputText class="form-control" @bind-Value="model.Email" />
+    </div>
+    <div class="mb-3">
+        <label>Password</label>
+        <InputText type="password" class="form-control" @bind-Value="model.Password" />
+    </div>
+    <button class="btn btn-primary" type="submit">Log In</button>
+    <a class="btn btn-link" href="/register">Need an account?</a>
+</EditForm>
+
+@code {
+    private LoginModel model = new();
+
+    private class LoginModel
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+
+    private async Task HandleLogin()
+    {
+        var uri = new Uri(Nav.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        var returnUrl = query.Get("returnUrl") ?? "/";
+
+        using var client = new HttpClient { BaseAddress = new Uri(Nav.BaseUri) };
+        var content = new FormUrlEncodedContent(new Dictionary<string, string?>
+        {
+            ["email"] = model.Email,
+            ["password"] = model.Password,
+            ["returnUrl"] = returnUrl
+        });
+        var res = await client.PostAsync("/auth/login", content);
+        if (res.IsSuccessStatusCode)
+        {
+            Nav.NavigateTo(returnUrl, forceLoad: true);
+        }
+    }
+}
