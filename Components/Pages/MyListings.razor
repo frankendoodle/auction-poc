@@ -1,9 +1,10 @@
 @page "/my-listings"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
 @rendermode InteractiveServer
 
 <PageTitle>My Listings</PageTitle>
 
 <div class="auction-container">
     <h1>My Listings</h1>
-    <p>This is a placeholder page for your listings.</p>
+    <p>This page is protected and requires you to be logged in.</p>
 </div>

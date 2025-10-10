@@ -1,0 +1,25 @@
+@page "/login"
+@rendermode InteractiveServer
+@inject NavigationManager Nav
+
+<h3>Log In</h3>
+
+@{
+    var uri = new Uri(Nav.Uri);
+    var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+    var returnUrl = query.Get("returnUrl") ?? "/";
+}
+
+<form method="post" action="/auth/login">
+    <div class="mb-3">
+        <label>Email</label>
+        <input name="email" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label>Password</label>
+        <input name="password" type="password" class="form-control" />
+    </div>
+    <input type="hidden" name="returnUrl" value="@returnUrl" />
+    <button class="btn btn-primary" type="submit">Log In</button>
+    <a class="btn btn-link" href="/register">Need an account?</a>
+</form>

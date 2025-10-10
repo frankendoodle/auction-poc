@@ -1,0 +1,26 @@
+[
+  {
+    "Email": "testuser@example.com",
+    "DisplayName": "Test User",
+    "Role": "AuctionClient",
+    "PasswordHash": "0E44CE7308AF2B3DE5232E4616403CE7D49BA2AEC83F79C196409556422A4927"
+  },
+  {
+    "Email": "demo.user\u002B1760136490700@example.com",
+    "DisplayName": "Demo User",
+    "Role": "AuctionClient",
+    "PasswordHash": "0E44CE7308AF2B3DE5232E4616403CE7D49BA2AEC83F79C196409556422A4927"
+  },
+  {
+    "Email": "demo.user\u002B1760136507852@example.com",
+    "DisplayName": "Demo User",
+    "Role": "AuctionClient",
+    "PasswordHash": "0E44CE7308AF2B3DE5232E4616403CE7D49BA2AEC83F79C196409556422A4927"
+  },
+  {
+    "Email": "cli.user.1760136527@example.com",
+    "DisplayName": "CLI User",
+    "Role": "AuctionClient",
+    "PasswordHash": "0E44CE7308AF2B3DE5232E4616403CE7D49BA2AEC83F79C196409556422A4927"
+  }
+]

@@ -34,15 +34,24 @@
                     <a href="/intelligence" class="mm-nav__link">Intelligence</a>
                 </li>
             </ul>
-        <div class="mm-header__right user-menu d-flex align-items-center gap-3">
-            <a href="/add-listings" class="user-menu-link">Add Listings</a>
-            <a href="/saved" class="user-menu-link">Saved</a>
-            <a href="/my-listings" class="user-menu-link">My Listings</a>
-            <button type="button" class="user-menu-link" aria-label="Notifications" style="background:none;border:0;padding:0;">
-                🔔
-            </button>
-            <div class="user-avatar" style="width:28px;height:28px;border-radius:50%;background:#e5e7eb;display:inline-block;"></div>
-        </div>
+
+            <AuthorizeView>
+                <Authorized>
+                    <div class="mm-header__right user-menu d-flex align-items-center gap-3">
+                        <a href="/add-listings" class="user-menu-link">Add Listings</a>
+                        <a href="/saved" class="user-menu-link">Saved</a>
+                        <a href="/my-listings" class="user-menu-link">My Listings</a>
+                        <button type="button" class="user-menu-link" aria-label="Notifications" style="background:none;border:0;padding:0;">🔔</button>
+                        <button class="btn btn-outline-danger" @onclick="Logout">Log out</button>
+                    </div>
+                </Authorized>
+                <NotAuthorized>
+                    <div class="mm-header__right d-flex align-items-center gap-3">
+                        <a href="/register" class="user-menu-link" style="cursor:pointer">Sign Up</a>
+                        <a href="/login" class="btn btn-primary" style="cursor:pointer">Sign Up or Log In</a>
+                    </div>
+                </NotAuthorized>
+            </AuthorizeView>
 
         </nav>
     </div>
@@ -58,5 +67,12 @@
             ? "/"
             : $"/?q={Uri.EscapeDataString(_searchTerm)}";
         Nav.NavigateTo(target);
+    }
+
+    private async Task Logout()
+    {
+        using var client = new HttpClient { BaseAddress = new Uri(Nav.BaseUri) };
+        await client.PostAsync("/auth/logout", new FormUrlEncodedContent(new Dictionary<string, string>()));
+        Nav.NavigateTo("/", forceLoad: true);
     }
 }
