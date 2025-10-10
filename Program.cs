@@ -19,7 +19,7 @@ builder.Services.AddRazorComponents()
 var connectionString = builder.Configuration.GetConnectionString("AuctionDatabase");
 if (!string.IsNullOrEmpty(connectionString))
 {
-    var password = builder.Configuration["AuctionPassword"];
+    var password = builder.Configuration["auction-admin"];
     if (!string.IsNullOrEmpty(password))
     {
         connectionString = connectionString.Replace("{KEYVAULT-PASSWORD}", password);
