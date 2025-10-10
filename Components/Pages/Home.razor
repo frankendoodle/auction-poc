@@ -114,6 +114,8 @@
 </div>
 
 @code {
+    [SupplyParameterFromQuery(Name = "q")]
+    public string? Query { get; set; }
     private List<AuctionProperty> allProperties = new();
     private List<AuctionProperty> filteredProperties = new();
     private List<string> propertyTypes = new();
@@ -121,14 +123,18 @@
     private string selectedPriceRange = "";
     private bool searchSaved = false;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        allProperties = AuctionService.GetAllProperties();
+        allProperties = await AuctionService.GetAllPropertiesAsync();
         filteredProperties = allProperties;
-        propertyTypes = AuctionService.GetPropertyTypes();
+        propertyTypes = await AuctionService.GetPropertyTypesAsync();
+        if (!string.IsNullOrWhiteSpace(Query))
+        {
+            await ApplyFilters();
+        }
     }
 
-    private void ApplyFilters()
+    private async Task ApplyFilters()
     {
         decimal? minPrice = null;
         decimal? maxPrice = null;
@@ -150,15 +156,16 @@
             }
         }
 
-        filteredProperties = AuctionService.FilterProperties(selectedPropertyType, minPrice, maxPrice);
+        filteredProperties = await AuctionService.FilterPropertiesAsync(selectedPropertyType, minPrice, maxPrice, Query);
         searchSaved = false;
     }
 
-    private void ClearFilters()
+    private async Task ClearFilters()
     {
         selectedPropertyType = "";
         selectedPriceRange = "";
-        filteredProperties = allProperties;
+        Query = null;
+        filteredProperties = await AuctionService.GetAllPropertiesAsync();
         searchSaved = false;
     }
 
