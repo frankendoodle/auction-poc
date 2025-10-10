@@ -102,7 +102,7 @@ app.MapPost("/auth/register", async (IUserStore store, [Microsoft.AspNetCore.Mvc
     var ok = await store.AddAsync(rec);
     if (!ok) return Results.BadRequest("Unable to register.");
     return Results.Ok();
-});
+}).DisableAntiforgery();
 
 app.MapPost("/auth/login", async (IUserStore store, HttpContext ctx, [Microsoft.AspNetCore.Mvc.FromForm] string email, [Microsoft.AspNetCore.Mvc.FromForm] string password, [Microsoft.AspNetCore.Mvc.FromForm] string? returnUrl) =>
 {
@@ -124,7 +124,7 @@ app.MapPost("/auth/login", async (IUserStore store, HttpContext ctx, [Microsoft.
 
     var redirect = string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl!;
     return Results.Ok(new { redirect });
-});
+}).DisableAntiforgery();
 
 app.MapPost("/auth/logout", async (HttpContext ctx) =>
 {
