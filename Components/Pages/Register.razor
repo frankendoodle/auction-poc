@@ -5,59 +5,28 @@
 
 <h3>Sign Up</h3>
 
-<EditForm Model="model" OnValidSubmit="HandleRegister">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+<form method="post" action="/auth/register">
     <div class="mb-3">
         <label>Display Name</label>
-        <InputText class="form-control" @bind-Value="model.DisplayName" />
+        <input name="displayName" class="form-control" />
     </div>
     <div class="mb-3">
         <label>Email</label>
-        <InputText class="form-control" @bind-Value="model.Email" />
+        <input name="email" class="form-control" />
     </div>
     <div class="mb-3">
         <label>Password</label>
-        <InputText type="password" class="form-control" @bind-Value="model.Password" />
+        <input name="password" type="password" class="form-control" />
     </div>
     <div class="mb-3">
         <label>Role</label>
-        <InputSelect class="form-select" @bind-Value="model.Role">
+        <select name="role" class="form-select">
             <option value="">Select role…</option>
             <option value="@Roles.AgentBuyer">Agent (Buyer)</option>
             <option value="@Roles.AgentSeller">Agent (Seller)</option>
             <option value="@Roles.Staff">Staff</option>
             <option value="@Roles.AuctionClient">Auction Client</option>
-        </InputSelect>
+        </select>
     </div>
     <button class="btn btn-primary" type="submit">Create account</button>
-</EditForm>
-
-@code {
-    private RegisterModel model = new();
-
-    private class RegisterModel
-    {
-        public string DisplayName { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-        public string Role { get; set; } = string.Empty;
-    }
-
-    private async Task HandleRegister()
-    {
-        using var client = new HttpClient { BaseAddress = new Uri(Nav.BaseUri) };
-        var content = new FormUrlEncodedContent(new Dictionary<string, string?>
-        {
-            ["email"] = model.Email,
-            ["password"] = model.Password,
-            ["displayName"] = model.DisplayName,
-            ["role"] = model.Role
-        });
-        var res = await client.PostAsync("/auth/register", content);
-        if (res.IsSuccessStatusCode)
-        {
-            Nav.NavigateTo("/login", forceLoad: true);
-        }
-    }
-}
+</form>
