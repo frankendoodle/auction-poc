@@ -9,12 +9,10 @@
     <main>
         <div class="top-row px-4">
             <div class="topbar-left">
-                <EditForm OnValidSubmit="HandleSearchSubmit">
-                    <div class="top-search-wrapper">
-                        <InputText @bind-Value="_searchTerm" placeholder="Enter a location or keyword" class="top-search-input" />
-                        <button type="submit" class="top-search-btn" aria-label="Search"></button>
-                    </div>
-                </EditForm>
+                <form class="top-search-wrapper" @onsubmit="HandleSearchSubmit" @onsubmit:preventDefault="true">
+                    <input @bind="_searchTerm" placeholder="Enter a location or keyword" class="top-search-input" />
+                    <button type="submit" class="top-search-btn" aria-label="Search"></button>
+                </form>
             </div>
             <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
         </div>
